@@ -1,12 +1,13 @@
 import React, { useState } from 'react'
 import {useDispatch, useSelector} from 'react-redux'
-import { addTodo, Item, deleteTodo } from '@/store/todoSlice'
+import { addTodo, Item, deleteTodo, updateTodo, completeTodo } from '@/store/todoSlice'
 import { useToast } from '@chakra-ui/react';
 
 const useTodos = () => {
   const toast = useToast();
     const [input, setInput] = useState<string>("")
     const [isEditing, setIsEditing] = useState<boolean>(false)
+    const [oldId, setOldId] = useState<string>()
     const dispatch = useDispatch()
 
     const storeTodos = useSelector((store:any) =>store.todoSlice.todos)
@@ -24,7 +25,7 @@ const useTodos = () => {
         dispatch(addTodo(input))
         console.log(storeTodos)
 
-        setInput('')
+        setInput("")
     }
 
     const deleteTodos = (item:Item)  => {
@@ -35,12 +36,25 @@ const useTodos = () => {
     const onUpdateHandler = (todo:Item) => {
       setInput(todo.text);
       setIsEditing(true);
-      console.log("on update", input)
+      setOldId(todo.id);
 
-    }
+      console.log(input, isEditing, oldId)
+    };
 
     const editTodo = () => {
 
+      dispatch(updateTodo({id:oldId, text: input}));
+      setIsEditing(false)
+      setInput("")
+
+      console.log(isEditing)
+
+    }
+
+    const completeHandler = (todo: Item) => {
+        dispatch(completeTodo(todo));
+        console.log(`Completed todo with id ${todo.id}`);
+  
     }
 
     
@@ -51,7 +65,11 @@ const useTodos = () => {
     setInput,
     storeTodos,
     deleteTodos,
-    onUpdateHandler
+    onUpdateHandler,
+    editTodo,
+    isEditing,
+    setIsEditing,
+    completeHandler,
   }
     
   
